@@ -12,15 +12,17 @@ public class CompilerController : MonoBehaviour
 {
     private PyProcessor _processor;
     private IOpCode[] _opCodes;
+    private string[] _coloredCodeLines;
 
     public TMP_Text inputText;
+    public TMP_Text coloredInputText;
     public TMP_InputField inputField;
     public TMP_Text opCodeText;
     public Color currentOpCodeColor = Color.red;
     public Color nextOpCodeColor = new Color(1, 0.5f, 0.2f);
+    public Color highlightedLineColor = Color.green;
     public CanvasGroup opCodesCanvasGroup;
-    [Space]
-    public Button stopButton;
+    [Space] public Button stopButton;
     public Button walkLineButton;
     public Button walkInstructionButton;
     public Button compileButton;
@@ -35,9 +37,34 @@ public class CompilerController : MonoBehaviour
         var compiler = new PyCompiler();
         _processor = (PyProcessor) compiler.Compile(code);
         _opCodes = compiler.ToArray();
+        _coloredCodeLines = coloredInputText.text.Split('\n');
 
         UpdateIntractability();
-        UpdateOpCodeText();
+    }
+
+    public void UpdateLineHighlight(SourceReference source)
+    {
+
+        int fromLine = source.FromRow;
+        int toLine = source.ToRow;
+        
+        var newLines = new string[_coloredCodeLines.Length];
+        for (var i = 0; i < _coloredCodeLines.Length; i++)
+        {
+            string codeLine = _coloredCodeLines[i];
+            if (i >= fromLine - 1 && i <= toLine - 1)
+                newLines[i] = $"<mark=#{ColorUtility.ToHtmlStringRGBA(highlightedLineColor)}>{codeLine}</mark>";
+            else
+                newLines[i] = codeLine;
+        }
+
+        coloredInputText.text = string.Join("\n", newLines);
+    }
+
+    public void HideLineHighlight()
+    {
+        if (_coloredCodeLines != null)
+            coloredInputText.text = string.Join("\n", _coloredCodeLines);
     }
 
     public void UpdateOpCodeText()
@@ -81,6 +108,14 @@ public class CompilerController : MonoBehaviour
         walkLineButton.interactable = running;
         walkInstructionButton.interactable = running;
         opCodesCanvasGroup.alpha = running ? 1f : 0.5f;
+
+        if (running)
+        {
+            UpdateLineHighlight(_processor.CurrentSource);
+            UpdateOpCodeText();
+        }
+        else
+            HideLineHighlight();
     }
 
     public void CompileInput()
@@ -104,7 +139,6 @@ public class CompilerController : MonoBehaviour
         {
             _processor.WalkLine();
             UpdateIntractability();
-            UpdateOpCodeText();
         }
         catch (Exception e)
         {
@@ -121,7 +155,6 @@ public class CompilerController : MonoBehaviour
         {
             _processor.WalkInstruction();
             UpdateIntractability();
-            UpdateOpCodeText();
         }
         catch (Exception e)
         {
