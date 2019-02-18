@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mellis.Core.Entities;
+using Mellis.Core.Interfaces;
 using Mellis.Lang.Python3;
 using Mellis.Lang.Python3.Interfaces;
+using PM;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +25,8 @@ public class CompilerController : MonoBehaviour
     public Color nextOpCodeColor = new Color(1, 0.5f, 0.2f);
     public Color highlightedLineColor = Color.green;
     public CanvasGroup opCodesCanvasGroup;
+    public RectTransform variableWindow;
+    public TMP_Text variableTemplate;
     [Space] public Button stopButton;
     public Button walkLineButton;
     public Button walkInstructionButton;
@@ -42,9 +47,26 @@ public class CompilerController : MonoBehaviour
         UpdateIntractability();
     }
 
+    public void UpdateVariableWindow()
+    {
+        if (_processor != null)
+        {
+            foreach (Transform child in variableWindow)
+            {
+                if (child != variableTemplate.transform)
+                    Destroy(child.gameObject);
+            }
+            foreach (KeyValuePair<string, IScriptType> pair in _processor.CurrentScope.Variables)
+            {
+                TMP_Text tmpText = Instantiate(variableTemplate, variableWindow);
+                tmpText.gameObject.SetActive(true);
+                tmpText.text = $"{pair.Key}\n{IDEColorCoding.runColorCode(pair.Value.ToString())}";
+            }
+        }
+    }
+
     public void UpdateLineHighlight(SourceReference source)
     {
-
         int fromLine = source.FromRow;
         int toLine = source.ToRow;
         
@@ -109,6 +131,7 @@ public class CompilerController : MonoBehaviour
         walkInstructionButton.interactable = running;
         opCodesCanvasGroup.alpha = running ? 1f : 0.5f;
 
+        UpdateVariableWindow();
         if (running)
         {
             UpdateLineHighlight(_processor.CurrentSource);
