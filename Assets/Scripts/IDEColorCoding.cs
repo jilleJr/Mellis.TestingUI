@@ -35,17 +35,18 @@ namespace PM
         private const string commentColor = "#6B9EA5";
         private const string numberColor = "#FF7C26";
         private const char commentSign = '#';
-        private const char stringSign = '"';
+        private const char sStringSign = '\'';
+        private const char dStringSign = '"';
 
         public static string runColorCode(string currentText)
         {
             string[] lines = currentText.Split('\n');
             string all = string.Empty;
 
-            for (int i = 0; i < lines.Length; i++)
+            for (var i = 0; i < lines.Length; i++)
             {
                 var segments = SplitLineIntoSegments(lines[i]);
-                for (int j = 0; j < segments.Count; j++)
+                for (var j = 0; j < segments.Count; j++)
                 {
                     // Find next and prev non-whitespace
                     //int next = -1, prev = -1;
@@ -70,14 +71,13 @@ namespace PM
         #region Parsing
         private static List<Segment> SplitLineIntoSegments(string line)
         {
-            List<Segment> segments = new List<Segment>();
+            var segments = new List<Segment>();
 
-            Segment current = new Segment();
+            var current = new Segment();
 
-            for (int i = 0; i < line.Length; i++)
+            foreach (char c in line)
             {
-                char c = line[i];
-                SegmentType charType = SegmentType.Unknown;
+                var charType = SegmentType.Unknown;
 
                 // The main parsing done here
 
@@ -86,9 +86,9 @@ namespace PM
                     // Continue comment
                     charType = SegmentType.Comment;
                 }
-                else if (current.type == SegmentType.String)
+                else if (current.type == SegmentType.StringSingleQuote)
                 {
-                    if (c == stringSign)
+                    if (c == sStringSign)
                     {
                         // End of string
                         current.text += c;
@@ -99,7 +99,23 @@ namespace PM
                     else
                     {
                         // Continue string
-                        charType = SegmentType.String;
+                        charType = SegmentType.StringSingleQuote;
+                    }
+                }
+                else if (current.type == SegmentType.StringDoubleQuote)
+                {
+                    if (c == dStringSign)
+                    {
+                        // End of string
+                        current.text += c;
+                        segments.Add(current);
+                        current = new Segment();
+                        continue;
+                    }
+                    else
+                    {
+                        // Continue string
+                        charType = SegmentType.StringDoubleQuote;
                     }
                 }
                 else if (c == commentSign)
@@ -108,10 +124,15 @@ namespace PM
                     charType = SegmentType.Comment;
 
                 }
-                else if (c == stringSign)
+                else if (c == sStringSign)
                 {
                     // Start of string
-                    charType = SegmentType.String;
+                    charType = SegmentType.StringSingleQuote;
+                }
+                else if (c == dStringSign)
+                {
+                    // Start of string
+                    charType = SegmentType.StringDoubleQuote;
                 }
                 else if (char.IsWhiteSpace(c))
                 {
@@ -186,7 +207,8 @@ namespace PM
                 {
                     case SegmentType.Comment: return colorComment(text);
                     case SegmentType.Number: return colorNumber(text);
-                    case SegmentType.String: return colorText(text);
+                    case SegmentType.StringDoubleQuote:
+                    case SegmentType.StringSingleQuote: return colorText(text);
                     case SegmentType.Variable: return colorKeyWords(text);
                     case SegmentType.Operator: return colorOperator(text);
                     default: return text;
@@ -199,7 +221,8 @@ namespace PM
             Unknown,
             Whitespace,
             Number,
-            String,
+            StringSingleQuote,
+            StringDoubleQuote,
             Comment,
             Symbol,
             Variable,
