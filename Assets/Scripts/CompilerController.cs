@@ -63,11 +63,18 @@ public class CompilerController : MonoBehaviour
                 if (child != variableTemplate.transform)
                     Destroy(child.gameObject);
             }
+
+            var first = true;
             foreach (KeyValuePair<string, IScriptType> pair in _processor.CurrentScope.Variables)
             {
                 TMP_Text tmpText = Instantiate(variableTemplate, variableWindow);
                 tmpText.gameObject.SetActive(true);
                 tmpText.text = $"{pair.Key}\n{IDEColorCoding.runColorCode(pair.Value.ToString())}";
+                tmpText.GetComponentInChildren<Image>().enabled = !first;
+                if (first)
+                {
+                    first = false;
+                }
             }
         }
     }
