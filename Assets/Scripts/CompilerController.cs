@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Mellis.Core.Entities;
+using Mellis.Core.Exceptions;
 using Mellis.Core.Interfaces;
 using Mellis.Lang.Python3;
 using Mellis.Lang.Python3.Interfaces;
@@ -24,6 +26,7 @@ public class CompilerController : MonoBehaviour
     public Color currentOpCodeColor = Color.red;
     public Color nextOpCodeColor = new Color(1, 0.5f, 0.2f);
     public Color highlightedLineColor = Color.green;
+    public Color errorLineColor = Color.red;
     public CanvasGroup opCodesCanvasGroup;
     public RectTransform variableWindow;
     public TMP_Text variableTemplate;
@@ -39,10 +42,14 @@ public class CompilerController : MonoBehaviour
 
     private void Compile(string code)
     {
+        Stopwatch watch = Stopwatch.StartNew();
+        _coloredCodeLines = coloredInputText.text.Split('\n');
         var compiler = new PyCompiler();
         _processor = (PyProcessor) compiler.Compile(code);
         _opCodes = compiler.ToArray();
-        _coloredCodeLines = coloredInputText.text.Split('\n');
+        watch.Stop();
+
+        ConsoleLogger.Info($"Compiled source in {watch.ElapsedMilliseconds} ms.");
 
         UpdateIntractability();
     }
@@ -65,7 +72,7 @@ public class CompilerController : MonoBehaviour
         }
     }
 
-    public void UpdateLineHighlight(SourceReference source)
+    public void UpdateLineHighlight(SourceReference source, Color color)
     {
         int fromLine = source.FromRow;
         int toLine = source.ToRow;
@@ -75,7 +82,7 @@ public class CompilerController : MonoBehaviour
         {
             string codeLine = _coloredCodeLines[i];
             if (i >= fromLine - 1 && i <= toLine - 1)
-                newLines[i] = $"<mark=#{ColorUtility.ToHtmlStringRGBA(highlightedLineColor)}>{codeLine}</mark>";
+                newLines[i] = $"<mark=#{ColorUtility.ToHtmlStringRGBA(color)}>{codeLine}</mark>";
             else
                 newLines[i] = codeLine;
         }
@@ -134,7 +141,7 @@ public class CompilerController : MonoBehaviour
         UpdateVariableWindow();
         if (running)
         {
-            UpdateLineHighlight(_processor.CurrentSource);
+            UpdateLineHighlight(_processor.CurrentSource, highlightedLineColor);
             UpdateOpCodeText();
         }
         else
@@ -146,6 +153,12 @@ public class CompilerController : MonoBehaviour
         try
         {
             Compile(inputText.text);
+        }
+        catch (SyntaxException e)
+        {
+            UpdateLineHighlight(e.SourceReference, errorLineColor);
+            ConsoleLogger.Error("Exception thrown when invoking WalkLine.");
+            ConsoleLogger.Exception(e);
         }
         catch (Exception e)
         {

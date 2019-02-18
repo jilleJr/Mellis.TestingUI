@@ -986,6 +986,7 @@ MonoBehaviour:
   currentOpCodeColor: {r: 1, g: 0, b: 0, a: 1}
   nextOpCodeColor: {r: 1, g: 0.5, b: 0.2, a: 1}
   highlightedLineColor: {r: 0, g: 1, b: 0, a: 0.23137255}
+  errorLineColor: {r: 1, g: 0, b: 0, a: 0.20392157}
   opCodesCanvasGroup: {fileID: 767876361}
   variableWindow: {fileID: 1931557756}
   variableTemplate: {fileID: 1720893714}
@@ -1123,7 +1124,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000034347213, y: -0.000082296974}
+  m_AnchoredPosition: {x: 0.000034347213, y: -0.0000012194713}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &452513119
@@ -1431,7 +1432,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000034347213, y: -0.000018754383}
+  m_AnchoredPosition: {x: 0.000034347213, y: -0.000007313109}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &549768905
@@ -1769,7 +1770,7 @@ GameObject:
   - component: {fileID: 726939114}
   - component: {fileID: 726939113}
   m_Layer: 5
-  m_Name: Button
+  m_Name: Clear button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2144,7 +2145,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 3
   m_Viewport: {fileID: 184523149}
   m_HorizontalScrollbar: {fileID: 830971385}
   m_VerticalScrollbar: {fileID: 2009854896}
@@ -2180,7 +2181,7 @@ GameObject:
   - component: {fileID: 783068823}
   - component: {fileID: 783068824}
   m_Layer: 5
-  m_Name: Toggle
+  m_Name: Autoscroll toggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3677,7 +3678,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 3
   m_Viewport: {fileID: 843097987}
   m_HorizontalScrollbar: {fileID: 319614288}
   m_VerticalScrollbar: {fileID: 273336067}
@@ -4991,7 +4992,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000042594194, y: 0}
+  m_AnchoredPosition: {x: 0.000018434599, y: 0}
   m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1931557757
@@ -5386,8 +5387,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 818625352}
   m_HandleRect: {fileID: 818625351}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.9999998
+  m_Value: 0
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
