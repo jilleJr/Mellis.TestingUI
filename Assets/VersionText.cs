@@ -18,13 +18,6 @@ public class VersionText : MonoBehaviour
 
     [Space] [TextArea] public string format;
 
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        SetText();
-    }
-#endif
-
     private void Start()
     {
         SetText();
