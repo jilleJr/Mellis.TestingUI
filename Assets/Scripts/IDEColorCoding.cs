@@ -198,10 +198,7 @@ namespace PM
             public string text;
             public SegmentType type;
 
-            public int lastNonWhitespace;
-            public int nextNonWhitespace;
-
-            public string GetColored(/*Segment? previousNonWhitespace = null, Segment? nextNonWhitespace = null*/)
+            public string GetColored()
             {
                 switch (type)
                 {
