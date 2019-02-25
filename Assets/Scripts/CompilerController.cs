@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Mellis.Core.Entities;
 using Mellis.Core.Exceptions;
 using Mellis.Core.Interfaces;
@@ -83,7 +84,7 @@ public class CompilerController : MonoBehaviour
     {
         int fromLine = source.FromRow;
         int toLine = source.ToRow;
-        
+
         var newLines = new string[_coloredCodeLines.Length];
         for (var i = 0; i < _coloredCodeLines.Length; i++)
         {
@@ -117,17 +118,30 @@ public class CompilerController : MonoBehaviour
         {
             IOpCode opCode = _opCodes[i];
 
+            string opCodeTrueStr = opCode.ToString();
+            string opCodeStr = Regex.Replace(opCodeTrueStr, @"^([a-zA-Z]+)(.*)$", $@"<size=70%>{i}</size><indent=20><b>$1</b><color=#999><i>$2</i></color></indent>");
+
+            int open = opCodeStr.IndexOf('{');
+            if (open != -1)
+            {
+                int close = opCodeStr.LastIndexOf('}');
+                int len = close - open;
+                opCodeStr = opCodeStr.Substring(0, open + 1) +
+                            IDEColorCoding.runColorCode(opCodeStr.Substring(open + 1, len - 1)) +
+                            opCodeStr.Substring(close);
+            }
+
             if (i == 0 && _processor.ProgramCounter == -1)
             {
-                builder.AppendLine($"<color=#{ColorUtility.ToHtmlStringRGBA(nextOpCodeColor)}>{opCode}</color>");
+                builder.AppendLine($"<color=#{ColorUtility.ToHtmlStringRGBA(nextOpCodeColor)}>{opCodeStr}</color>");
             }
             else if (i == _processor.ProgramCounter)
             {
-                builder.AppendLine($"<color=#{ColorUtility.ToHtmlStringRGBA(currentOpCodeColor)}>{opCode}</color>");
+                builder.AppendLine($"<color=#{ColorUtility.ToHtmlStringRGBA(currentOpCodeColor)}>{opCodeStr}</color>");
             }
             else
             {
-                builder.AppendLine(opCode.ToString());
+                builder.AppendLine(opCodeStr);
             }
         }
 
@@ -144,12 +158,12 @@ public class CompilerController : MonoBehaviour
         walkLineButton.interactable = running;
         walkInstructionButton.interactable = running;
         opCodesCanvasGroup.alpha = running ? 1f : 0.5f;
+        UpdateOpCodeText();
 
         UpdateVariableWindow();
         if (running)
         {
             UpdateLineHighlight(_processor.CurrentSource, highlightedLineColor);
-            UpdateOpCodeText();
         }
         else
             HideLineHighlight();
