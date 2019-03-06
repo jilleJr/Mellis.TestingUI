@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Builtins;
 using Mellis.Core.Entities;
 using Mellis.Core.Exceptions;
 using Mellis.Core.Interfaces;
 using Mellis.Lang.Python3;
 using Mellis.Lang.Python3.Interfaces;
+using Mellis.Lang.Python3.VM;
 using PM;
 using TMPro;
 using UnityEngine;
@@ -36,6 +38,14 @@ public class CompilerController : MonoBehaviour
     public Button walkInstructionButton;
     public Button compileButton;
 
+    private readonly IClrFunction[] _myBuiltins =
+    {
+        new Print(),
+        new Bind(),
+        new Builtins.Time(),
+        new Builtins.Input(),
+    };
+
     private void OnEnable()
     {
         UpdateIntractability();
@@ -51,6 +61,8 @@ public class CompilerController : MonoBehaviour
         watch.Stop();
 
         ConsoleLogger.Info($"Compiled source in {watch.ElapsedMilliseconds} ms.");
+
+        _processor.AddBuiltin(_myBuiltins);
 
         UpdateIntractability();
     }
@@ -119,7 +131,8 @@ public class CompilerController : MonoBehaviour
             IOpCode opCode = _opCodes[i];
 
             string opCodeTrueStr = opCode.ToString();
-            string opCodeStr = Regex.Replace(opCodeTrueStr, @"^([a-zA-Z]+)(.*)$", $@"<size=70%>{i}</size><indent=20><b>$1</b><color=#999><i>$2</i></color></indent>");
+            string opCodeStr = Regex.Replace(opCodeTrueStr, @"^([a-zA-Z]+)(.*)$",
+                $@"<size=70%>{i}</size><indent=20><b>$1</b><color=#999><i>$2</i></color></indent>");
 
             int open = opCodeStr.IndexOf('{');
             if (open != -1)
@@ -151,12 +164,15 @@ public class CompilerController : MonoBehaviour
     public void UpdateIntractability()
     {
         bool running = _processor?.State == ProcessState.Running ||
+                       _processor?.State == ProcessState.Yielded ||
                        _processor?.State == ProcessState.NotStarted;
+        bool yielded = _processor?.State == ProcessState.Yielded;
+
         inputField.interactable = !running;
         compileButton.interactable = !running;
         stopButton.interactable = running;
-        walkLineButton.interactable = running;
-        walkInstructionButton.interactable = running;
+        walkLineButton.interactable = running && !yielded;
+        walkInstructionButton.interactable = running && !yielded;
         opCodesCanvasGroup.alpha = running ? 1f : 0.5f;
         UpdateOpCodeText();
 
@@ -224,5 +240,13 @@ public class CompilerController : MonoBehaviour
     {
         _processor = null;
         UpdateIntractability();
+    }
+
+    public static void ResolveYield(string value)
+    {
+        var controller = FindObjectOfType<CompilerController>();
+        PyProcessor pyProcessor = controller._processor;
+        pyProcessor.ResolveYield(pyProcessor.Factory.Create(value));
+        controller.UpdateIntractability();
     }
 }

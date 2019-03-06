@@ -15,6 +15,7 @@ public class ConsoleLogger : MonoBehaviour
     public Color infoColor = Color.yellow;
     public Color warningColor = new Color(1, 0.5f, 0.2f);
     public Color errorColor = Color.red;
+    public Color debugColor = Color.cyan;
 
     [Space]
     public Toggle autoScrollToggle;
@@ -52,6 +53,11 @@ public class ConsoleLogger : MonoBehaviour
         _instance.UpdateLogText();
     }
 
+    public static void Debug(string text)
+    {
+        LogInternal(_instance.debugColor, "DEBUG", text);
+    }
+
     public static void Info(string text)
     {
         LogInternal(_instance.infoColor, "INFO", text);
@@ -68,6 +74,32 @@ public class ConsoleLogger : MonoBehaviour
     }
 
     public static void Exception(Exception ex)
+    {
+        string joined = FormatExceptionNotInner(ex);
+
+        LogInternal(_instance.errorColor, "EXCEPTION",
+            joined);
+
+        UnityEngine.Debug.LogException(ex);
+    }
+
+    private static string FormatException(Exception ex)
+    {
+        string joined = FormatExceptionNotInner(ex);
+
+        Exception inner = ex.InnerException;
+        var count = 0;
+        while (inner != null)
+        {
+            count++;
+            joined += $"\n<b>===(( INNER EXCEPTION #{count} ))===</b>\n" + FormatExceptionNotInner(inner);
+            inner = inner.InnerException;
+        }
+
+        return joined;
+    }
+
+    private static string FormatExceptionNotInner(Exception ex)
     {
         string[] lines;
 
@@ -102,13 +134,13 @@ public class ConsoleLogger : MonoBehaviour
                 .ToArray();
         }
 
-        LogInternal(_instance.errorColor, "EXCEPTION",
-            string.Join("\n", lines.Concat(new[]
-            {
-                $"Type: <b>{ex.GetType().FullName}</b>",
-                "<b>===(( Stacktrace ))===</b>",
-                ex.StackTrace
-            })));
+        string joined = string.Join("\n", lines.Concat(new[]
+        {
+            $"Type: <b>{ex.GetType().FullName}</b>",
+            "<b>===(( Stacktrace ))===</b>",
+            ex.StackTrace
+        }));
+        return joined;
     }
 
     private static void LogInternal(Color color, string type, string text)
