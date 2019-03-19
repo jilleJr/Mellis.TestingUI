@@ -39,12 +39,12 @@ public class CompilerController : MonoBehaviour
     public Button walkInstructionButton;
     public Button compileButton;
 
-    private readonly IClrFunction[] _myBuiltins =
+    private readonly IEmbeddedType[] _myBuiltins =
     {
         new Print(),
         new Bind(),
         new Builtins.Time(),
-        //new Builtins.Input(),
+        new Builtins.Input(),
     };
 
     private void OnEnable()
@@ -145,11 +145,11 @@ public class CompilerController : MonoBehaviour
                             opCodeStr.Substring(close);
             }
 
-            if (i == 0 && _processor.ProgramCounter == -1)
+            if (i == 0 && _processor?.ProgramCounter == -1)
             {
                 builder.AppendLine($"<color=#{ColorUtility.ToHtmlStringRGBA(nextOpCodeColor)}>{opCodeStr}</color>");
             }
-            else if (i == _processor.ProgramCounter)
+            else if (i == _processor?.ProgramCounter)
             {
                 builder.AppendLine($"<color=#{ColorUtility.ToHtmlStringRGBA(currentOpCodeColor)}>{opCodeStr}</color>");
             }

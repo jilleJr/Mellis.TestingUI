@@ -13,7 +13,6 @@ namespace Builtins
 
         public override void InvokeEnter(IScriptType[] arguments)
         {
-            Debug.Log(arguments.FirstOrDefault());
             Object.FindObjectOfType<InputBuiltinField>().Show();
         }
     }
