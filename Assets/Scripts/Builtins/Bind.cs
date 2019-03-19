@@ -15,16 +15,14 @@ namespace Builtins
         public override IScriptType Invoke(IScriptType[] arguments)
         {
             var func = arguments[0];
-            if (func is ClrFunctionBase clr)
-            {
-                return Processor.Factory.Create(new BoundFunction(
-                    clr.Definition, arguments.Skip(1).ToArray()
-                ));
-            }
-            else
-            {
-                throw new ArgumentException("Function 'bind' needs first parameter to be a function yao :(.", nameof(arguments));
-            }
+
+            if (!(func is IClrFunction clr))
+                throw new ArgumentException("Function 'bind' needs first parameter to be a function yao :(.",
+                    nameof(arguments));
+
+            return Processor.Factory.Create(new BoundFunction(
+                clr, arguments.Skip(1).ToArray()
+            ));
         }
 
         private class BoundFunction : ClrFunction

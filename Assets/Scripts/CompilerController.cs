@@ -9,6 +9,7 @@ using Mellis.Core.Entities;
 using Mellis.Core.Exceptions;
 using Mellis.Core.Interfaces;
 using Mellis.Lang.Python3;
+using Mellis.Lang.Python3.Entities;
 using Mellis.Lang.Python3.Interfaces;
 using Mellis.Lang.Python3.VM;
 using PM;
@@ -43,7 +44,7 @@ public class CompilerController : MonoBehaviour
         new Print(),
         new Bind(),
         new Builtins.Time(),
-        new Builtins.Input(),
+        //new Builtins.Input(),
     };
 
     private void OnEnable()
@@ -53,7 +54,7 @@ public class CompilerController : MonoBehaviour
 
     private void Compile(string code)
     {
-        Stopwatch watch = Stopwatch.StartNew();
+        var watch = Stopwatch.StartNew();
         _coloredCodeLines = coloredInputText.text.Split('\n');
         var compiler = new PyCompiler();
         _processor = (PyProcessor) compiler.Compile(code);
