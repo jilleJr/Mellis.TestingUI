@@ -83,7 +83,7 @@ public class CompilerController : MonoBehaviour
             {
                 TMP_Text tmpText = Instantiate(variableTemplate, variableWindow);
                 tmpText.gameObject.SetActive(true);
-                tmpText.text = $"{pair.Key}\n{IDEColorCoding.runColorCode(pair.Value.ToString())}";
+                tmpText.text = $"{pair.Key}\n{IDEColorCoding.RunColorCode(pair.Value.ToString())}";
                 tmpText.GetComponentInChildren<Image>().enabled = !first;
                 if (first)
                 {
@@ -141,7 +141,7 @@ public class CompilerController : MonoBehaviour
                 int close = opCodeStr.LastIndexOf('}');
                 int len = close - open;
                 opCodeStr = opCodeStr.Substring(0, open + 1) +
-                            IDEColorCoding.runColorCode(opCodeStr.Substring(open + 1, len - 1)) +
+                            IDEColorCoding.RunColorCode(opCodeStr.Substring(open + 1, len - 1)) +
                             opCodeStr.Substring(close);
             }
 

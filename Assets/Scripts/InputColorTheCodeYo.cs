@@ -12,6 +12,6 @@ public class InputColorTheCodeYo : MonoBehaviour
 
     public void UpdateColoredOutput(string text)
     {
-        output.text = IDEColorCoding.runColorCode(text);
+        output.text = IDEColorCoding.RunColorCode(text);
     }
 }
